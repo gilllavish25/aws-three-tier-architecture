@@ -90,3 +90,7 @@ EC2 Auto Scaling can be added to the Web Tier for increased scalability and faul
 ## Author
 
 Lavish Gill
+## Live Application
+
+[Open Live AWS Application](http://Three-Tier-Public-ALB-1428180970.ap-south-1.elb.amazonaws.com)
+
