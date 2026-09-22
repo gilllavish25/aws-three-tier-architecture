@@ -1,96 +1,199 @@
-﻿# AWS 3-Tier Architecture Web Application
+# AWS 3-Tier Architecture Web Application
 
-## Project Overview
+A secure, scalable web application built using AWS 3-Tier Architecture with separate Web, Application, and Database tiers.
 
-This project implements a scalable, secure, and high-performance web application using AWS 3-Tier Architecture.
+## Live Application
+
+**[Open Live AWS Application](http://Three-Tier-Public-ALB-1428180970.ap-south-1.elb.amazonaws.com)**
+
+The application provides a feedback form and processes requests through the complete 3-tier architecture.
+
+---
 
 ## Architecture
 
+```text
 Internet
-↓
+    |
+    v
 Public Application Load Balancer
-↓
-Web Tier (Nginx + HTML)
-↓
+    |
+    v
+Web Tier
+EC2 + Nginx
+Public Subnets
+    |
+    | /api/
+    v
 Internal Application Load Balancer
-↓
-Application Tier (Flask)
-↓
+    |
+    v
+Application Tier
+Flask + EC2
+Private Subnets
+Port 5000
+    |
+    v
+Database Tier
 Amazon RDS MySQL
-↓
-Feedback Database
+Private Subnets
+---
 
-## AWS Components
+## AWS Infrastructure
 
-- Amazon VPC
+The project uses a custom Amazon VPC deployed across two Availability Zones.
+
+### VPC and Networking
+
+- Custom Amazon VPC
+- 2 Availability Zones
+- 2 Public/Web subnets
+- 2 Private/Application subnets
+- 2 Private/Database subnets
 - Internet Gateway
 - NAT Gateway
-- Public and Private Subnets across two Availability Zones
-- EC2 Web Tier
+- Elastic IP
+- Public route table
+- Private Application route table
+- Private Database route table
+
+### Web Tier
+
+Two EC2 instances are used for the Web Tier.
+
+Services:
+- Amazon EC2
 - Nginx
-- Public Application Load Balancer
-- EC2 Flask Application Tier
-- Internal Application Load Balancer
-- Amazon RDS MySQL
-- Security Groups
-- Route Tables
+- HTML frontend
 
-## Application Flow
+The Web Tier is deployed in the public subnets.
 
-1. User accesses the application through the Public ALB.
-2. Public ALB forwards traffic to the Web Tier.
-3. Nginx serves the frontend.
-4. Requests to /api/ are forwarded to the Internal ALB.
-5. Internal ALB forwards requests to the Flask application servers.
-6. Flask stores submitted feedback in Amazon RDS MySQL.
+### Public Application Load Balancer
 
-## Repository Files
+An internet-facing Application Load Balancer distributes incoming user traffic to the Web Tier.
 
-| File | Purpose |
-|---|---|
-| pp.py | Flask backend application |
-| index.html | Feedback form frontend |
-| 
-ginx.conf | Nginx configuration |
-| proxy.md | Nginx reverse-proxy configuration |
-| App.md | Application-tier documentation |
-| DB.md | Database setup and configuration |
-| .gitignore | Prevents secrets and private files from being committed |
-
-## Database
-
-Database:
-
-eedbackdb
-
-Table:
-
-eedback
-
-The application stores submitted name, email, feedback, and creation timestamp in Amazon RDS MySQL.
+```text
+Internet
+    |
+    v
+Public ALB
+    |
+    +---- Web Server A
+    |
+    +---- Web Server B
+---
 
 ## Security
 
-Security groups are configured to allow traffic only between the appropriate tiers.
+The application is designed with separate security controls for the Web, Application, and Database tiers.
 
-Database credentials are not stored in this repository. The Flask application reads the database password using the DB_PASSWORD environment variable.
+### Security Groups
 
-## Testing
+Traffic between the different tiers is restricted using AWS Security Groups.
 
-The complete application was tested through the public load balancer:
+The intended traffic flow is:
 
-Public ALB → Web Tier → Internal ALB → Flask App → RDS MySQL
+```text
+Internet
+    |
+    v
+Public ALB
+    |
+    v
+Web Tier
+    |
+    v
+Internal ALB
+    |
+    v
+Application Tier
+    |
+    v
+RDS MySQL
+---
 
-A feedback submission was successfully stored in the RDS database.
+## Database Tier
+
+Amazon RDS for MySQL is used as the persistent database layer.
+
+### Database Configuration
+
+Database engine:
+
+`MySQL`
+
+Database name:
+
+`feedbackdb`
+
+Table:
+
+`feedback`
+
+The RDS instance is deployed in the private Database subnets.
+
+### Database Schema
+
+```sql
+CREATE TABLE feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    feedback TEXT,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+---
+
+## Testing and Validation
+
+The complete 3-tier application was tested through the public Application Load Balancer.
+
+### End-to-End Flow
+
+```text
+Public ALB
+    |
+    v
+Web Tier
+    |
+    v
+Nginx Reverse Proxy
+    |
+    v
+Internal ALB
+    |
+    v
+Flask Application Tier
+    |
+    v
+Amazon RDS MySQL
+---
+
+## Repository Structure
+
+```text
+aws-three-tier-architecture/
+│
+├── README.md
+├── app.py
+├── index.html
+├── nginx.conf
+├── proxy.md
+├── App.md
+├── DB.md
+└── .gitignore
+---
 
 ## Future Enhancement
 
-EC2 Auto Scaling can be added to the Web Tier for increased scalability and fault tolerance.
+EC2 Auto Scaling can be added to the Web Tier as an optional scalability and fault-tolerance enhancement.
+
+---
 
 ## Author
 
-Lavish Gill
-## Live Application
+**Lavish Gill**
 
-[Open Live AWS Application](http://Three-Tier-Public-ALB-1428180970.ap-south-1.elb.amazonaws.com)
+GitHub Repository:
 
+[aws-three-tier-architecture](https://github.com/gilllavish25/aws-three-tier-architecture)
