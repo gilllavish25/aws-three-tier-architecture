@@ -5,7 +5,7 @@ import pymysql
 app = Flask(__name__)
  
 DB_CONFIG = {
-    'host':   'RDS-ENDPOINT',   # Replace after Step 8
+    'host':   'three-tier-rds.cd2wqw0e2dmj.ap-south-1.rds.amazonaws.com',
     'user':   'admin',
     'password': os.getenv('DB_PASSWORD'),
     'db':     'feedbackdb',
